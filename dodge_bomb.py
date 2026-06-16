@@ -1,6 +1,8 @@
 import os
+import math
 import random
 import sys
+import time
 import pygame as pg
 
 
@@ -49,7 +51,7 @@ def gameover(screen: pg.Surface) -> None:
 
     screen.blit(overlay, (0, 0))
     pg.display.update()
-    pg.time.wait(5000)  # 5秒間表示させる
+    time.sleep(5)  # 5秒間表示させる
 
 def init_bb_imgs() -> tuple[list[pg.Surface], list[int]]:
     """
@@ -86,6 +88,22 @@ def get_kk_imgs() -> dict[tuple[int, int], pg.Surface]:
         (+5, +5): pg.transform.rotozoom(base_img_reverse, -45, 1.0),  # 右下
     }
     return kk_dict
+
+def calc_orientation(org: pg.Rect, dst: pg.Rect, current_xy: tuple[float, float],) -> tuple[float, float]:
+    """
+    引数：org=爆弾Rect, dst=こうかとんRect, current_xy=現在の速度方向
+    戻り値：ノルム√50に正規化した(vx, vy)、距離300未満なら慣性でcurrent_xyを返す
+    orgからdstへの正規化された方向ベクトルを返す
+    """
+    dx = dst.centerx - org.centerx
+    dy = dst.centery - org.centery
+    norm = math.sqrt(dx ** 2 + dy ** 2)
+    if norm < 300:  # 距離300未満なら現在の方向を維持させる
+        return current_xy
+    scale = math.sqrt(50) / norm
+    return dx * scale, dy * scale
+
+
 
 def main():
     pg.display.set_caption("逃げろ！こうかとん")
@@ -136,13 +154,15 @@ def main():
 
         stage = min(tmr // 500, 9)  # 500フレームごとに段階アップ（最大9）
         bb_img = bb_imgs[stage]
+
+        vx, vy = calc_orientation(bb_rct, kk_rct, (vx, vy))
+
         acc_vx = vx * bb_accs[stage]  # 加速度を掛けた実際の速度
         acc_vy = vy * bb_accs[stage]
 
         bb_rct.move_ip(acc_vx, acc_vy)
         bb_rct.width = bb_img.get_rect().width  # Rectサイズを爆弾に合わせて更新
         bb_rct.height = bb_img.get_rect().height
-        bb_rct.move_ip(vx, vy)
         yoko, tate = check_bound(bb_rct)
         if not yoko:
             vx *= -1
