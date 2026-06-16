@@ -15,6 +15,7 @@ DELTA = {
     pg.K_RIGHT: (+5, 0),
 }
 
+
 def check_bound(rct: pg.Rect) -> tuple[bool, bool]:
     """
     引数 : こうかとんRect or 爆弾Rect
@@ -27,6 +28,7 @@ def check_bound(rct: pg.Rect) -> tuple[bool, bool]:
     if rct.top < 0 or HEIGHT < rct.bottom:
         tate = False
     return yoko, tate
+
 
 def gameover(screen: pg.Surface) -> None: 
     """
@@ -53,6 +55,7 @@ def gameover(screen: pg.Surface) -> None:
     pg.display.update()
     time.sleep(5)  # 5秒間表示させる
 
+
 def init_bb_imgs() -> tuple[list[pg.Surface], list[int]]:
     """
     引数 : なし
@@ -67,6 +70,7 @@ def init_bb_imgs() -> tuple[list[pg.Surface], list[int]]:
         bb_imgs.append(bb_img)
     bb_accs = [a for a in range(1, 11)]  # 加速度のリスト
     return bb_imgs, bb_accs
+
 
 def get_kk_imgs() -> dict[tuple[int, int], pg.Surface]:
     """
@@ -89,6 +93,7 @@ def get_kk_imgs() -> dict[tuple[int, int], pg.Surface]:
     }
     return kk_dict
 
+
 def calc_orientation(org: pg.Rect, dst: pg.Rect, current_xy: tuple[float, float],) -> tuple[float, float]:
     """
     引数：org=爆弾Rect, dst=こうかとんRect, current_xy=現在の速度方向
@@ -102,7 +107,6 @@ def calc_orientation(org: pg.Rect, dst: pg.Rect, current_xy: tuple[float, float]
         return current_xy
     scale = math.sqrt(50) / norm
     return dx * scale, dy * scale
-
 
 
 def main():
@@ -124,9 +128,8 @@ def main():
 
     clock = pg.time.Clock()
 
-    
-
     tmr = 0
+    
     while True:
         for event in pg.event.get():
             if event.type == pg.QUIT: 
